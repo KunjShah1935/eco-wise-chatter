@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Leaf } from "lucide-react";
 import { Message } from "@/components/Message";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface ChatMessage {
   id: string;
@@ -81,14 +82,17 @@ const ChatInterface = () => {
     <div className="flex flex-col h-screen max-w-4xl mx-auto bg-card/50 backdrop-blur-sm rounded-xl shadow-eco-strong border border-border/50">
       {/* Header */}
       <div className="gradient-eco-primary p-6 rounded-t-xl">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-white/20 rounded-full">
-            <Leaf className="h-6 w-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-full">
+              <Leaf className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">EcoBot 🌍</h1>
+              <p className="text-white/90 text-sm">Your environmental companion</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-white">EcoBot 🌍</h1>
-            <p className="text-white/90 text-sm">Your environmental companion</p>
-          </div>
+          <ThemeToggle />
         </div>
       </div>
 
