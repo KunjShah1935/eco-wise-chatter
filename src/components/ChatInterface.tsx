@@ -31,16 +31,27 @@ const ChatInterface = () => {
 
   useEffect(scrollToBottom, [messages]);
 
-  // Simulated bot responses for demo (replace with your backend integration)
-  const getBotResponse = (userMessage: string): string => {
-    const responses = [
-      "🌱 That's a great question! Every small action counts towards a healthier planet. Did you know that switching to LED bulbs can reduce your carbon footprint by up to 80%? ♻️",
-      "🌍 I love your eco-consciousness! Here are some sustainable practices you might find helpful: composting, using renewable energy, and choosing eco-friendly products. 🌿",
-      "♻️ Absolutely! Reducing waste is one of the most impactful things we can do. Try the 3 R's: Reduce, Reuse, Recycle. Even better, add a fourth R: Refuse unnecessary items! 🌱",
-      "🌿 Nature has amazing solutions! Planting trees not only beautifies our environment but also captures carbon dioxide. One mature tree can absorb 48 pounds of CO2 per year! 🌳",
-      "🌊 Water conservation is crucial for our planet! Simple changes like fixing leaks, taking shorter showers, and collecting rainwater can make a huge difference. Every drop counts! 💧",
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+  // API call to your Python backend
+  const getBotResponse = async (userMessage: string): Promise<string> => {
+    try {
+      const response = await fetch('http://localhost:5000/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.response;
+    } catch (error) {
+      console.error('Error calling backend:', error);
+      throw new Error('🌱 Sorry, I\'m having trouble connecting right now. Make sure your Python backend is running on http://localhost:5000! 🌿');
+    }
   };
 
   const handleSendMessage = async () => {
@@ -54,21 +65,35 @@ const ChatInterface = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageToSend = inputValue;
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
+    try {
+      // Call your Python backend
+      const botResponseText = await getBotResponse(messageToSend);
+      
       const botResponse: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        content: getBotResponse(inputValue),
+        content: botResponseText,
         sender: "bot",
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, botResponse]);
+    } catch (error) {
+      // Show error message to user
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        content: error instanceof Error ? error.message : "🌱 Something went wrong. Please try again! 🌿",
+        sender: "bot",
+        timestamp: new Date(),
+      };
+      
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
